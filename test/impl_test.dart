@@ -1,8 +1,8 @@
-library secp256k1Cipher.test.impl_test;
+library secp256k1cipher.test.impl_test;
 
-import 'package:secp256k1Cipher/src/secp256k1Cipher.dart';
+import 'package:secp256k1cipher/src/secp256k1Cipher.dart';
 import "package:test/test.dart";
-import 'package:secp256k1Cipher/cipher.dart';
+import 'package:secp256k1cipher/secp256k1cipher.dart';
 import "package:pointycastle/ecc/api.dart";
 
 
