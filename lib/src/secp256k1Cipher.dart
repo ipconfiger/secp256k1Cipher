@@ -10,6 +10,8 @@ import "package:pointycastle/key_generators/api.dart";
 import "package:pointycastle/key_generators/ec_key_generator.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 import 'package:pointycastle/stream/salsa20.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/src/utils.dart';
 
 /// return a hex string version privateKey
 String strinifyPrivateKey(ECPrivateKey privateKey){
@@ -49,7 +51,11 @@ ECPoint rawSecret(String privateString, String publicString){
 
 /// return a Bytes data secret 
 Uint8List byteSecret(String privateString, String publicString){
-    return rawSecret(privateString, publicString).getEncoded(true);
+    var secret = rawSecret(privateString, publicString);
+    var x_ls = encodeBigInt(secret.x.toBigInteger());
+    var y_ls = encodeBigInt(secret.y.toBigInteger());
+    var secret_arr = x_ls + y_ls;
+    return SHA256Digest().process(Uint8List.fromList(secret_arr));
 }
 
 /// return Hex String secret
@@ -63,25 +69,24 @@ String getSecret(String privateString, String publicString){
 /// Encrypt data using target public key
 Map pubkeyEncrypt(String privateString, String publicString, String message){
   var secret = byteSecret(privateString, publicString);
-  var key = Uint8List.fromList(secret.getRange(0, 32).toList());
   var iv = _seed(8);
   Salsa20Engine _cipher = Salsa20Engine();
   _cipher.reset();
-  _cipher.init(true, _buildParams(key, Uint8List, iv));
+  _cipher.init(true, _buildParams(secret, Uint8List, iv));
   var enc_data = convert.base64.encode(_cipher.process(Uint8List.fromList(message.codeUnits)));
   return {
     'enc': enc_data,
-    'iv': iv
+    'iv': convert.base64.encode(iv)
   };
 }
 
 /// Decrypt data using self private key
-String privateDecrypt(String privateString, String publicString, String b64encoded, Uint8List iv){
+String privateDecrypt(String privateString, String publicString, String b64encoded, String b64IV){
   var secret = byteSecret(privateString, publicString);
-  var key = Uint8List.fromList(secret.getRange(0, 32).toList());
+  Uint8List iv = convert.base64.decode(b64IV);
   Salsa20Engine _cipher = Salsa20Engine();
   _cipher.reset();
-  _cipher.init(false, _buildParams(key, Uint8List, iv));
+  _cipher.init(false, _buildParams(secret, Uint8List, iv));
   Uint8List encd_data = convert.base64.decode(b64encoded);
   Uint8List raw_data = _cipher.process(encd_data);
   return new String.fromCharCodes(raw_data);
