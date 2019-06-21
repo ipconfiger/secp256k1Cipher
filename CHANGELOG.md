@@ -10,3 +10,6 @@ Changelog
 
 * 1. sha256 compress the secret length to 32, just fix the salsa20 key langth;
 * 2. Change IV to base64 string, will be shorter for transport;
+
+### Version 0.1.2 (2019-06-21)
+* 1. add uint8list encrypt decrypt support
