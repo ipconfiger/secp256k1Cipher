@@ -13,3 +13,7 @@ Changelog
 
 ### Version 0.1.2 (2019-06-21)
 * 1. add uint8list encrypt decrypt support
+
+### Version 0.1.3 (2018-07-02)
+* 1. add strict check for point on curve
+* 2. fix bug's on serialization of public key

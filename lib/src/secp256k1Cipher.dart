@@ -6,22 +6,30 @@ import "package:pointycastle/export.dart";
 import "package:pointycastle/api.dart";
 import "package:pointycastle/ecc/api.dart";
 import "package:pointycastle/ecc/curves/secp256k1.dart";
-import "package:pointycastle/key_generators/api.dart";
-import "package:pointycastle/key_generators/ec_key_generator.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 import 'package:pointycastle/stream/salsa20.dart';
 import 'package:pointycastle/digests/sha256.dart';
-import 'package:pointycastle/src/utils.dart';
+import 'operator.dart';
 
 /// return a hex string version privateKey
 String strinifyPrivateKey(ECPrivateKey privateKey){
   return privateKey.d.toRadixString(16);
 }
 
+String left_padding(String s, int width){
+  final padding_data = '000000000000000';
+  final padding_width = width - s.length;
+  if (padding_width < 1){
+    return s;
+  }
+  return "${padding_data.substring(0, padding_width)}${s}";
+}
+
+
 /// return a hex string version publicKey
 String strinifyPublicKey(ECPublicKey publicKey){
-  var x_str = publicKey.Q.x.toBigInteger().toRadixString(16);
-  var y_str = publicKey.Q.y.toBigInteger().toRadixString(16);
+  var x_str = left_padding(publicKey.Q.x.toBigInteger().toRadixString(16), 64);
+  var y_str = left_padding(publicKey.Q.y.toBigInteger().toRadixString(16), 64);
   return "${x_str}${y_str}";
 }
 
@@ -43,19 +51,20 @@ ECPublicKey loadPublicKey(String storedkey){
 
 /// return a ECPoint data secret
 ECPoint rawSecret(String privateString, String publicString){
-    var privateKey = loadPrivateKey(privateString);
-    var publicKey = loadPublicKey(publicString);
-    var secret = publicKey.Q * privateKey.d;
+    final privateKey = loadPrivateKey(privateString);
+    final publicKey = loadPublicKey(publicString);
+    final secret = scalar_multiple(privateKey.d, publicKey.Q); //publicKey.Q * privateKey.d;
+    //final secret = publicKey.Q * privateKey.d;
     return secret;
 }
 
 /// return a Bytes data secret 
 Uint8List byteSecret(String privateString, String publicString){
-    var secret = rawSecret(privateString, publicString);
-    var x_ls = encodeBigInt(secret.x.toBigInteger());
-    var y_ls = encodeBigInt(secret.y.toBigInteger());
-    var secret_arr = x_ls + y_ls;
-    return SHA256Digest().process(Uint8List.fromList(secret_arr));
+    final secret = rawSecret(privateString, publicString);
+    final x_s = secret.x.toBigInteger().toRadixString(16);
+    final y_s = secret.x.toBigInteger().toRadixString(16);
+    final secret_hex = '${x_s}${y_s}';
+    return SHA256Digest().process(Uint8List.fromList(secret_hex.codeUnits));
 }
 
 /// return Hex String secret
@@ -112,12 +121,19 @@ ParametersWithIV<KeyParameter> _buildParams(Uint8List key, Uint8List, iv) {
 
 /// Generate Keypair
 AsymmetricKeyPair<PublicKey, PrivateKey> generateKeyPair() {
-  var keyParams = ECKeyGeneratorParameters(ECCurve_secp256k1());
+  var keyParams = ECCurve_secp256k1();
   var random = FortunaRandom();
   random.seed(KeyParameter(_seed(32)));
-  var generator = ECKeyGenerator();
-  generator.init(ParametersWithRandom(keyParams, random));
-  return generator.generateKeyPair();
+  var n = keyParams.n;
+  var nBitLength = n.bitLength;
+  var d;
+  do {
+    d = random.nextBigInteger(nBitLength);
+  } while (d == BigInt.zero || (d >= n));
+  ECPoint Q = scalar_multiple(d, keyParams.G);
+  return new AsymmetricKeyPair(
+        new ECPublicKey(Q, keyParams),
+        new ECPrivateKey(d, keyParams));
 }
 
 Uint8List _seed(length) {
