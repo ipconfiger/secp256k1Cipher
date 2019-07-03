@@ -1,4 +1,5 @@
 library secp256k1cipher.test.impl_test;
+import 'dart:io';
 import 'package:secp256k1cipher/src/operator.dart';
 import 'package:secp256k1cipher/src/secp256k1Cipher.dart';
 import "package:test/test.dart";
@@ -9,15 +10,24 @@ import "package:pointycastle/ecc/api.dart";
 void main(){
   group('Keys', (){
     test('Generate Keys', (){
-      final rs = BigInt.parse('31611240361787321350634878907371798843942705813719873982771920434159111865364');
-      final v = inverse_mod(BigInt.from(1000), BigInt.parse('fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f', radix: 16));
-      print(rs);
-      print(v);
-      expect(rs, equals(v));
+      File f = new File('/Users/alex/study/test.csv');
+      final lines = [];
+      for (var _idx=0; _idx < 100; _idx++){
+        final keypare = generateKeyPair();
+        final line = [
+          strinifyPublicKey(keypare.publicKey),
+          strinifyPrivateKey(keypare.privateKey)
+        ];
+        final row = line.join(',');
+        lines.add(row);
+      }
+      final txt = lines.join('\n');
+      f.writeAsStringSync(txt);
+      expect(true, equals(true));
     });
     test('Save and restore private key', (){
       int micro_seconds = 0;
-      for (var _idx=0; _idx<100; _idx++){
+      for (var _idx=0; _idx<20; _idx++){
         final t1 = new DateTime.now().millisecondsSinceEpoch;
         var keypare = generateKeyPair();
         micro_seconds += (new DateTime.now().millisecondsSinceEpoch - t1);
@@ -25,6 +35,7 @@ void main(){
         ECPrivateKey pk1 = keypare.privateKey;
         var pk2 = loadPrivateKey(str_key);
         var str_pub = strinifyPublicKey(keypare.publicKey);
+        print('pubkey:${str_pub}');
         ECPublicKey pub1 = keypare.publicKey;
         final pub2 = loadPublicKey(str_pub);
         print("pub:\n${str_pub.length} \n pri:\n${str_key}");
@@ -47,7 +58,7 @@ void main(){
     });
     test('Encrypt and Decrypt', (){
       int micro_seconds = 0;
-      for(var i=0;i<100;i++){
+      for(var i=0;i<10;i++){
         final alic_pubkey = '5cb38e0c76f2b28e112e78d96d46e79b04585f17c3bb81a11ad3ad327d9ccaf815b0d2c770fd31c7224671378d7129cdd3dba97ca1efd016e2a580048c6eec46';
         final alic_prikey = '9717f155a64b67e5aa22a9552824237119a373b84ffe62eb435cac6581099767';
         var bob = generateKeyPair();

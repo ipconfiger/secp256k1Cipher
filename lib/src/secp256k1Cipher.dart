@@ -25,28 +25,48 @@ String left_padding(String s, int width){
   return "${padding_data.substring(0, padding_width)}${s}";
 }
 
-
 /// return a hex string version publicKey
 String strinifyPublicKey(ECPublicKey publicKey){
-  var x_str = left_padding(publicKey.Q.x.toBigInteger().toRadixString(16), 64);
-  var y_str = left_padding(publicKey.Q.y.toBigInteger().toRadixString(16), 64);
-  return "${x_str}${y_str}";
+  Uint8List compressedKey = publicKey.Q.getEncoded(true);
+  final code_list = compressedKey.toList();
+  //print('raw codes:${code_list}');
+  return code_list.map((w){
+    final hx = w.toRadixString(16);
+    if (hx.length<2){
+      return '0${hx}';
+    }
+    return hx;
+  }).join('');
+  //print('bytes:${raw_bytes}');
+  //var x_str = left_padding(publicKey.Q.x.toBigInteger().toRadixString(16), 64);
+  //var y_str = left_padding(publicKey.Q.y.toBigInteger().toRadixString(16), 64);
+  //return "${x_str}${y_str}";
 }
 
 /// return a privateKey from hex string
 ECPrivateKey loadPrivateKey(String storedkey){
-  var d = BigInt.parse(storedkey, radix:16);
-  var param = ECCurve_secp256k1();
+  final d = BigInt.parse(storedkey, radix:16);
+  final param = ECCurve_secp256k1();
   return new ECPrivateKey(d, param);
 }
 
 /// return a publicKey from hex string
 ECPublicKey loadPublicKey(String storedkey){
-  var x = BigInt.parse(storedkey.substring(0, 64), radix: 16);
-  var y = BigInt.parse(storedkey.substring(64), radix: 16);
-  var param = ECCurve_secp256k1();
-  var Q = param.curve.createPoint(x, y);
-  return new ECPublicKey(Q, param);
+  final param = ECCurve_secp256k1();
+  if (storedkey.length< 120){
+    var code_list = new List<int>();
+    for(var _idx=0; _idx < storedkey.length - 1; _idx+=2){
+      final hex_str = storedkey.substring(_idx, _idx+2);
+      code_list.add(int.parse(hex_str, radix: 16));
+    }
+    final Q = param.curve.decodePoint(code_list);
+    return new ECPublicKey(Q, param);
+  }else{
+    final x = BigInt.parse(storedkey.substring(0, 64), radix: 16);
+    final y = BigInt.parse(storedkey.substring(64), radix: 16);
+    final Q = param.curve.createPoint(x, y);
+    return new ECPublicKey(Q, param);
+  }
 }
 
 /// return a ECPoint data secret
