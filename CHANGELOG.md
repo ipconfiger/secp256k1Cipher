@@ -17,3 +17,6 @@ Changelog
 ### Version 0.1.3 (2018-07-02)
 * 1. add strict check for point on curve
 * 2. fix bug's on serialization of public key
+
+### Version 0.1.4 (2018-07-03)
+* 1. add compressed publickey support
