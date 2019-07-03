@@ -8,7 +8,7 @@ import "package:pointycastle/ecc/api.dart";
 import "package:pointycastle/ecc/curves/secp256k1.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 import 'package:pointycastle/stream/salsa20.dart';
-import 'package:pointycastle/digests/sha256.dart';
+import 'package:hex/hex.dart';
 import 'operator.dart';
 
 /// return a hex string version privateKey
@@ -83,16 +83,17 @@ Uint8List byteSecret(String privateString, String publicString){
     final secret = rawSecret(privateString, publicString);
     final x_s = secret.x.toBigInteger().toRadixString(16);
     final y_s = secret.x.toBigInteger().toRadixString(16);
-    final secret_hex = '${x_s}${y_s}';
-    return SHA256Digest().process(Uint8List.fromList(secret_hex.codeUnits));
+    final hex_x = left_padding(x_s, 64);
+    final hex_y = left_padding(y_s, 64);
+    return Uint8List.fromList(HEX.decode('${hex_x}${hex_y}').getRange(0, 32).toList());
 }
 
 /// return Hex String secret
 String getSecret(String privateString, String publicString){
-    var secret = rawSecret(privateString, publicString);
-    var x_str = secret.x.toBigInteger().toRadixString(16);
-    var y_str = secret.y.toBigInteger().toRadixString(16);
-    return "${x_str}${y_str}";   
+    final secret = rawSecret(privateString, publicString);
+    final x_str = secret.x.toBigInteger().toRadixString(16);
+    final y_str = secret.y.toBigInteger().toRadixString(16);
+    return "${left_padding(x_str, 64)}${left_padding(y_str, 64)}";   
 }
 
 /// Encrypt data using target public key

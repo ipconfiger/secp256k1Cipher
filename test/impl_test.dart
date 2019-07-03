@@ -14,9 +14,13 @@ void main(){
       final lines = [];
       for (var _idx=0; _idx < 100; _idx++){
         final keypare = generateKeyPair();
+        final ECPublicKey pubkey = keypare.publicKey;
+        final ECPrivateKey prikey = keypare.privateKey;
         final line = [
-          strinifyPublicKey(keypare.publicKey),
-          strinifyPrivateKey(keypare.privateKey)
+          strinifyPublicKey(pubkey),
+          strinifyPrivateKey(prikey),
+          pubkey.Q.x.toBigInteger().toRadixString(16),
+          pubkey.Q.y.toBigInteger().toRadixString(16)
         ];
         final row = line.join(',');
         lines.add(row);
@@ -26,24 +30,12 @@ void main(){
       expect(true, equals(true));
     });
     test('Save and restore private key', (){
-      int micro_seconds = 0;
-      for (var _idx=0; _idx<20; _idx++){
-        final t1 = new DateTime.now().millisecondsSinceEpoch;
-        var keypare = generateKeyPair();
-        micro_seconds += (new DateTime.now().millisecondsSinceEpoch - t1);
-        var str_key = strinifyPrivateKey(keypare.privateKey);
-        ECPrivateKey pk1 = keypare.privateKey;
-        var pk2 = loadPrivateKey(str_key);
-        var str_pub = strinifyPublicKey(keypare.publicKey);
-        print('pubkey:${str_pub}');
-        ECPublicKey pub1 = keypare.publicKey;
-        final pub2 = loadPublicKey(str_pub);
-        print("pub:\n${str_pub.length} \n pri:\n${str_key}");
-        expect(pk1.d, equals(pk2.d));
-        expect(pub1.Q, equals(pub2.Q));
-      }
-      print('avg: ${micro_seconds/100} ms');
-
+      final local_private = 'eaa692953a60ff85beecdf9647807f5e1bd665aa342c3c1d893b54bccf816ff5';
+      final remote_public = '02766171786852c788bfac4622b302b1c42ca77e3bfdabc56454a4ca5647ac4eba';
+      final enc = 'd5dTsgku25ylogZ7Yjs=';
+      final iv = 'MRz0cLx8QL4=';
+      final raw = privateDecrypt(local_private, remote_public, enc, iv);
+      print('raw: ${raw}');
     });
     test('Save and restore public key', () async{
       for (var _idx=0; _idx<100; _idx++){

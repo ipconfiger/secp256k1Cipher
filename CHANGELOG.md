@@ -20,3 +20,6 @@ Changelog
 
 ### Version 0.1.4 (2018-07-03)
 * 1. add compressed publickey support
+
+### Version 0.1.5 (2018-07-03)
+* 1. Change secret to encrypt key method to eliminate ambiguity;
