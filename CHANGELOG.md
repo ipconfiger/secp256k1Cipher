@@ -14,12 +14,15 @@ Changelog
 ### Version 0.1.2 (2019-06-21)
 * 1. add uint8list encrypt decrypt support
 
-### Version 0.1.3 (2018-07-02)
+### Version 0.1.3 (2019-07-02)
 * 1. add strict check for point on curve
 * 2. fix bug's on serialization of public key
 
-### Version 0.1.4 (2018-07-03)
+### Version 0.1.4 (2019-07-03)
 * 1. add compressed publickey support
 
-### Version 0.1.5 (2018-07-03)
+### Version 0.1.5 (2019-07-03)
 * 1. Change secret to encrypt key method to eliminate ambiguity;
+
+### Version 0.1.6 (2019-07-11)
+* 1. fix bugs when encrypt and decrypt unicode String

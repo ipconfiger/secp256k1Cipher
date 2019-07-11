@@ -54,13 +54,14 @@ void main(){
         final alic_pubkey = '5cb38e0c76f2b28e112e78d96d46e79b04585f17c3bb81a11ad3ad327d9ccaf815b0d2c770fd31c7224671378d7129cdd3dba97ca1efd016e2a580048c6eec46';
         final alic_prikey = '9717f155a64b67e5aa22a9552824237119a373b84ffe62eb435cac6581099767';
         var bob = generateKeyPair();
-        var raw_str = 'test test test';
+        var raw_str = '测试测试测试';
         final t1 = new DateTime.now().millisecondsSinceEpoch;
         var enc_map = pubkeyEncrypt(alic_prikey, strinifyPublicKey(bob.publicKey), raw_str);
         micro_seconds += (new DateTime.now().millisecondsSinceEpoch - t1);
         var enc_str = enc_map['enc'];
         var iv = enc_map['iv'];
         var decryptd = privateDecrypt(strinifyPrivateKey(bob.privateKey), alic_pubkey, enc_str, iv);
+        print('d:${decryptd}');
         expect(raw_str, equals(decryptd));
       }
       print('avg: ${micro_seconds/100} ms');

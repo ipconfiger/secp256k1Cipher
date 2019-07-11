@@ -98,7 +98,8 @@ String getSecret(String privateString, String publicString){
 
 /// Encrypt data using target public key
 Map pubkeyEncrypt(String privateString, String publicString, String message){
-  final enced = pubkeyEncryptRaw(privateString, publicString, Uint8List.fromList(message.codeUnits));
+  convert.Utf8Encoder encoder = new convert.Utf8Encoder();
+  final enced = pubkeyEncryptRaw(privateString, publicString, Uint8List.fromList(encoder.convert(message)));
   return {
     'enc': convert.base64.encode(enced['enc']),
     'iv':enced['iv']
@@ -118,12 +119,12 @@ Map pubkeyEncryptRaw(String privateString, String publicString, Uint8List data){
   };
 }
 
-
 /// Decrypt data using self private key
 String privateDecrypt(String privateString, String publicString, String b64encoded, String b64IV){
   Uint8List encd_data = convert.base64.decode(b64encoded);
   final raw_data = privateDecryptRaw(privateString, publicString, encd_data, b64IV);
-  return new String.fromCharCodes(raw_data);
+  convert.Utf8Decoder decode = new convert.Utf8Decoder();
+  return decode.convert(raw_data.toList());
 }
 
 Uint8List privateDecryptRaw(String privateString, String publicString, Uint8List encd_data, String b64IV){
