@@ -29,3 +29,6 @@ Changelog
 
 ### Version 0.1.7 (2019-07-11)
 * 1. support use part of secret as iv
+
+### Version 0.1.8 (2019-08-03)
+* 1. fix bugs when generate iv
