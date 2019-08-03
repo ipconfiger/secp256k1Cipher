@@ -82,14 +82,17 @@ ECPoint rawSecret(String privateString, String publicString){
 List<List<int>> byteSecret(String privateString, String publicString){
     final secret = rawSecret(privateString, publicString);
     final x_s = secret.x.toBigInteger().toRadixString(16);
-    final y_s = secret.x.toBigInteger().toRadixString(16);
+    final y_s = secret.y.toBigInteger().toRadixString(16);
     final hex_x = left_padding(x_s, 64);
     final hex_y = left_padding(y_s, 64);
     final secret_bytes = Uint8List.fromList(HEX.decode('${hex_x}${hex_y}'));
-    return [
-            secret_bytes.getRange(0, 32).toList(),
-            secret_bytes.getRange(32, 40).toList()
-        ];
+    final pair = [
+      secret_bytes.getRange(0, 32).toList(),
+      secret_bytes.getRange(32, 40).toList()
+    ];
+    print(secret_bytes);
+    print(pair);
+    return pair;
 }
 
 
@@ -97,6 +100,7 @@ List<List<int>> byteSecret(String privateString, String publicString){
 Map pubkeyEncrypt(String privateString, String publicString, String message){
   convert.Utf8Encoder encoder = new convert.Utf8Encoder();
   final enced = pubkeyEncryptRaw(privateString, publicString, Uint8List.fromList(encoder.convert(message)));
+  print('enced:${enced["enc"]}');
   return {
     'enc': convert.base64.encode(enced['enc']),
     'iv':enced['iv']
@@ -107,6 +111,7 @@ Map pubkeyEncryptRaw(String privateString, String publicString, Uint8List data){
   final secret_iv = byteSecret(privateString, publicString);
   final secret = Uint8List.fromList(secret_iv[0]);
   final iv = Uint8List.fromList(secret_iv[1]);
+  print('s:${secret} iv:${iv}');
   Salsa20Engine _cipher = Salsa20Engine();
   _cipher.reset();
   _cipher.init(true, _buildParams(secret, Uint8List, iv));

@@ -1,5 +1,7 @@
 library secp256k1cipher.test.impl_test;
+import 'dart:convert' as convert;
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:secp256k1cipher/src/operator.dart';
 import 'package:secp256k1cipher/src/secp256k1Cipher.dart';
 import "package:test/test.dart";
@@ -47,6 +49,20 @@ void main(){
         final s2 = rawSecret(strinifyPrivateKey(bob.privateKey), alic_pubkey);
         expect(s1, equals(s2));
       } 
+    });
+    test('Make request', () async {
+      final convert.Utf8Encoder encoder = new convert.Utf8Encoder();
+      final remote_pubkey = '02be8d8a7b5056de7a7074236100d094ebe86cce33d62469956203022af1f3e556';
+      final my_kp = generateKeyPair();
+      final data = 'abcdefg';
+      final str_pri_key = strinifyPrivateKey(my_kp.privateKey);
+      final str_pub_key = strinifyPublicKey(my_kp.publicKey);
+      final enced = pubkeyEncryptRaw(str_pri_key, remote_pubkey, new Uint8List.fromList(encoder.convert(data)));
+      final data_arr = new List<int>();
+      data_arr.addAll(encoder.convert(str_pub_key));
+      data_arr.addAll(enced['enc'].toList());
+      print(convert.base64.encode(data_arr));
+      expect(true, true);
     });
     test('Encrypt and Decrypt', (){
       int micro_seconds = 0;
