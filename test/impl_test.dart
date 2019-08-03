@@ -60,7 +60,7 @@ void main(){
         micro_seconds += (new DateTime.now().millisecondsSinceEpoch - t1);
         var enc_str = enc_map['enc'];
         var iv = enc_map['iv'];
-        var decryptd = privateDecrypt(strinifyPrivateKey(bob.privateKey), alic_pubkey, enc_str, iv);
+        var decryptd = privateDecrypt(strinifyPrivateKey(bob.privateKey), alic_pubkey, enc_str);
         print('d:${decryptd}');
         expect(raw_str, equals(decryptd));
       }

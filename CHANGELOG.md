@@ -26,3 +26,6 @@ Changelog
 
 ### Version 0.1.6 (2019-07-11)
 * 1. fix bugs when encrypt and decrypt unicode String
+
+### Version 0.1.7 (2019-07-11)
+* 1. support use part of secret as iv
