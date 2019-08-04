@@ -64,6 +64,18 @@ void main(){
       print(convert.base64.encode(data_arr));
       expect(true, true);
     });
+    test('Test Decrypt', () async{
+      final convert.Utf8Decoder decoder = new convert.Utf8Decoder();
+      final my_private = '1241ae561074f703c259da27036af3510640bbd6a79ceed7eaea4b3b566befe9';
+      final message = 'MDNjMThhN2RlN2I3ZjQwYTgwMDQwMDg1OGUyMTIwNmYyNzdiYjJhZGMwZjAyMDUzYjMzODYyZDgwY2Q0M2YxN2JhqDMwhGPjj2d4hpz2hfjjyRHQ';
+      final raw_data = convert.base64.decode(message);
+      final pub_key = decoder.convert(raw_data.getRange(0, 66).toList());
+      final payload = raw_data.getRange(66, raw_data.length).toList();
+      final decrypted = privateDecryptRaw(my_private, pub_key, new Uint8List.fromList(payload));
+      print("raw message=${decoder.convert(decrypted)}");
+      expect(true, true);
+
+    });
     test('Encrypt and Decrypt', (){
       int micro_seconds = 0;
       for(var i=0;i<10;i++){
