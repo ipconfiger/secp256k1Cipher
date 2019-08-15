@@ -9,6 +9,8 @@ import "package:pointycastle/ecc/curves/secp256k1.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 import 'package:pointycastle/stream/salsa20.dart';
 import 'package:hex/hex.dart';
+import 'package:base58check/base58.dart';
+import 'package:pointycastle/digests/ripemd160.dart';
 import 'operator.dart';
 
 /// return a hex string version privateKey
@@ -23,6 +25,34 @@ String left_padding(String s, int width){
     return s;
   }
   return "${padding_data.substring(0, padding_width)}${s}";
+}
+
+/// return a BTC Address
+String btcAddress(ECPublicKey pubkey){
+Digest sha256 = new Digest("SHA-256");
+      Digest ripemd = new RIPEMD160Digest();
+      final pub_bytes = pubkey.Q.getEncoded(false);
+      final sha_hash = sha256.process(pub_bytes);
+      final rip_hash = ripemd.process(sha_hash);
+      // 生成验证
+      final network_hash = [0x00] + rip_hash.toList();
+      final check1 = sha256.process(Uint8List.fromList(network_hash));
+      final check2 = sha256.process(check1);
+      final final_check = check2.sublist(0, 4);
+      final code_list = network_hash + final_check;
+      Base58Encoder b58 = new Base58Encoder('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
+      return b58.convert(code_list);
+}
+
+const int _shaBytes = 256 ~/ 8;
+final SHA3Digest sha3digest = SHA3Digest(_shaBytes * 8);
+
+String ethAddress(ECPublicKey pubkey){
+  sha3digest.reset();
+  final pub_bytes = pubkey.Q.getEncoded(false);
+  final address_bytes = sha3digest.process(pub_bytes);
+  final hex_string = HEX.encode(address_bytes);
+  return '0x${hex_string.substring(24)}';
 }
 
 /// return a hex string version publicKey

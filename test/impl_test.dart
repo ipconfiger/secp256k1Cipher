@@ -2,15 +2,49 @@ library secp256k1cipher.test.impl_test;
 import 'dart:convert' as convert;
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:secp256k1cipher/src/operator.dart';
 import 'package:secp256k1cipher/src/secp256k1Cipher.dart';
 import "package:test/test.dart";
 import 'package:secp256k1cipher/secp256k1cipher.dart';
 import "package:pointycastle/ecc/api.dart";
+import 'package:pointycastle/digests/ripemd160.dart';
+import "package:pointycastle/pointycastle.dart";
+import "package:hex/hex.dart";
+import 'package:base58check/base58.dart';
 
+String _formatBytesAsHexString(Uint8List bytes) {
+var result = StringBuffer();
+for (var i = 0; i < bytes.lengthInBytes; i++) {
+var part = bytes[i];
+result.write('${part < 16 ? '0' : ''}${part.toRadixString(16)}');
+}
+return result.toString();
+}
 
 void main(){
   group('Keys', (){
+    test("genaddr", () {
+      Digest sha256 = new Digest("SHA-256");
+      Digest ripemd = new RIPEMD160Digest();
+      final pubkey = loadPublicKey(
+          '50863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6');
+      final pub_bytes = pubkey.Q.getEncoded(false);
+      final sha_hash = sha256.process(pub_bytes);
+      final rip_hash = ripemd.process(sha_hash);
+      final hex_hash = HEX.encode(rip_hash.toList());
+      print(hex_hash);
+      
+      // 生成验证
+      final network_hash = [0x00] + rip_hash.toList();
+      final check1 = sha256.process(Uint8List.fromList(network_hash));
+      final check2 = sha256.process(check1);
+      final final_check = check2.sublist(0, 4);
+      final code_list = network_hash + final_check;
+      print(HEX.encode(code_list));
+      Base58Encoder b58 = new Base58Encoder('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
+      final b58_str = b58.convert(code_list);
+      print(b58_str);
+
+    });
     test('Generate Keys', (){
       File f = new File('/Users/alex/study/test.csv');
       final lines = [];
@@ -26,6 +60,9 @@ void main(){
         ];
         final row = line.join(',');
         lines.add(row);
+        
+        
+        
       }
       final txt = lines.join('\n');
       f.writeAsStringSync(txt);

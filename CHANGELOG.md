@@ -32,3 +32,7 @@ Changelog
 
 ### Version 0.1.8 (2019-08-03)
 * 1. fix bugs when generate iv
+
+### Version 0.2.0 (2019-08-15)
+* 1. PublicKey generate BTC Address
+* 2. PublicKey generate ETH Address
