@@ -36,3 +36,6 @@ Changelog
 ### Version 0.2.0 (2019-08-15)
 * 1. PublicKey generate BTC Address
 * 2. PublicKey generate ETH Address
+
+### Version 0.2.1 (2019-09-12)
+* 1. Remove unused logs.

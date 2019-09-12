@@ -120,8 +120,8 @@ List<List<int>> byteSecret(String privateString, String publicString){
       secret_bytes.getRange(0, 32).toList(),
       secret_bytes.getRange(32, 40).toList()
     ];
-    print(secret_bytes);
-    print(pair);
+    //print(secret_bytes);
+    //print(pair);
     return pair;
 }
 
@@ -130,7 +130,7 @@ List<List<int>> byteSecret(String privateString, String publicString){
 Map pubkeyEncrypt(String privateString, String publicString, String message){
   convert.Utf8Encoder encoder = new convert.Utf8Encoder();
   final enced = pubkeyEncryptRaw(privateString, publicString, Uint8List.fromList(encoder.convert(message)));
-  print('enced:${enced["enc"]}');
+  //print('enced:${enced["enc"]}');
   return {
     'enc': convert.base64.encode(enced['enc']),
     'iv':enced['iv']
@@ -141,7 +141,7 @@ Map pubkeyEncryptRaw(String privateString, String publicString, Uint8List data){
   final secret_iv = byteSecret(privateString, publicString);
   final secret = Uint8List.fromList(secret_iv[0]);
   final iv = Uint8List.fromList(secret_iv[1]);
-  print('s:${secret} iv:${iv}');
+  //print('s:${secret} iv:${iv}');
   Salsa20Engine _cipher = Salsa20Engine();
   _cipher.reset();
   _cipher.init(true, _buildParams(secret, Uint8List, iv));
