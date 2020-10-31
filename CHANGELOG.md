@@ -39,3 +39,6 @@ Changelog
 
 ### Version 0.2.1 (2019-09-12)
 * 1. Remove unused logs.
+
+### Version 0.2.2 (2020-10-31)
+* 1. Add private key signing and public key verification.
